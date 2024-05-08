@@ -1,30 +1,23 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { ref } from 'vue'
+import axios from 'axios'
+
+const message = ref('')
+const fetchMessage = async () => {
+  const { data } = await axios.get('http://localhost:8000/chatbot/test/') 
+  message.value = data.status === 'success' ? data.message : 'Erreur'
+}
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="flex flex-col items-center my-2">
+    <h1 class="text-3xl font-bold">Page de test</h1>
+    <span>Test de la connexion</span>
+    <button class="bg-sky-500 hover:bg-sky-300 px-5 py-2 text-sm leading-5 rounded-full font-semibold text-white" @click="fetchMessage">Test</button>
+    <p v-if="message" class="text-lg mt-2">{{ message }}</p>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
+
 </style>
