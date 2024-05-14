@@ -25,7 +25,6 @@ class Message(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class Request(models.Model):
-    id = models.CharField(max_length=8, primary_key=True)  # M + 6 digits
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     profile = models.CharField(max_length=2, choices=[('CD', 'CD'), ('BT', 'BT')])
