@@ -24,7 +24,7 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Request(models.Model):
+class AccessRequest(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     profile = models.CharField(max_length=2, choices=[('CD', 'CD'), ('BT', 'BT')])

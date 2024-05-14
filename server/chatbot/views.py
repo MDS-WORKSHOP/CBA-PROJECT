@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from django.contrib.auth.models import User
-from .models import Conversation, Message, Request, Instrument, Equivalent, InstrumentFeature, File
-from .serializers import UserSerializer, ConversationSerializer, MessageSerializer, RequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer, FileSerializer
+from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File
+from .serializers import UserSerializer, ConversationSerializer, MessageSerializer, AccessRequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer, FileSerializer
 from rest_framework import viewsets
 
 
@@ -32,9 +32,9 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
-class RequestViewSet(viewsets.ModelViewSet):
-    queryset = Request.objects.all()
-    serializer_class = RequestSerializer
+class AccessRequestViewSet(viewsets.ModelViewSet):
+    queryset = AccessRequest.objects.all()
+    serializer_class = AccessRequestSerializer
     permission_classes = [IsAuthenticated]
 
 class InstrumentViewSet(viewsets.ModelViewSet):
