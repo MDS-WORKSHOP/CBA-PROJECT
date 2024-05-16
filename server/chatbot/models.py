@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+from django.conf import settings
 
 
 class CustomUser(AbstractUser):
@@ -63,3 +65,17 @@ class File(models.Model):
     file_path = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class PasswordReset(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    token = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expiration_time = models.DateTimeField(default=timezone.now())
+
+    def is_expired(self):
+        return self.expiration_time < timezone.now()
+
+    def save(self, *args, **kwargs):
+        if not self.expiration_time:
+            self.expiration_time = timezone.now() + settings.PASSWORD_RESET_EXPIRATION_TIME
+        super().save(*args, **kwargs)       
