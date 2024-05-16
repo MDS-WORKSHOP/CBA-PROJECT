@@ -1,7 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
-class User(models.Model):
+
+class CustomUser(AbstractUser):
     access_id = models.CharField(max_length=255, unique=True, null=False)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -13,7 +14,7 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class Conversation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -57,7 +58,7 @@ class InstrumentFeature(models.Model):
     unit = models.CharField(max_length=50)  # Unit of measurement, e.g., "MHz", "GS/s"
 
 class File(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     file_name = models.CharField(max_length=255)
     file_path = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from django.contrib.auth.models import User
-from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File
-from .serializers import UserSerializer, ConversationSerializer, MessageSerializer, AccessRequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer, FileSerializer
+from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File,CustomUser
+from .serializers import CustomUserSerializer, ConversationSerializer, MessageSerializer, AccessRequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer, FileSerializer
 from rest_framework import viewsets
 
 
@@ -17,10 +17,10 @@ class TestConnectionAPI(APIView):
     def get(self, request, format=None):
         return Response({'status': 'success', 'message': 'Chatbot API is reachable'}, status=status.HTTP_200_OK)
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    # permission_classes = [IsAuthenticated]
 
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
