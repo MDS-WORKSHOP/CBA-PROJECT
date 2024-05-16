@@ -1,16 +1,17 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File, CustomUser
+from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File, CustomUser , PasswordReset
+from django.utils import timezone
+from django.conf import settings
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'access_id', 'profile', 'role', 'site', 'created_at', 'updated_at']
+        fields = ['id', 'password', 'first_name', 'last_name', 'email', 'access_id', 'profile', 'role', 'site', 'created_at', 'updated_at']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(
-            username=validated_data['username'],
             password=validated_data['password'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
@@ -23,7 +24,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        instance.username = validated_data.get('username', instance.username)
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
@@ -36,6 +36,19 @@ class CustomUserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class PasswordResetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PasswordReset
+        fields = ['id', 'user', 'token', 'created_at', 'expiration_time']
+
+    def create(self, validated_data):
+        password_reset = PasswordReset.objects.create(
+            user=validated_data['user'],
+            token=validated_data['token'],
+            expiration_time=validated_data.get('expiration_time', timezone.now() + settings.PASSWORD_RESET_EXPIRATION_TIME)
+        )
+        return password_reset
+    
 class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
