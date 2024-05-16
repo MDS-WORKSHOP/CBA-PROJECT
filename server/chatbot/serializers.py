@@ -7,21 +7,26 @@ from django.conf import settings
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'password', 'first_name', 'last_name', 'email', 'access_id', 'profile', 'role', 'site', 'created_at', 'updated_at']
+        fields = ['username', 'id', 'password', 'first_name', 'last_name', 'email', 'access_id', 'profile', 'role', 'site', 'created_at', 'updated_at']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        user = CustomUser.objects.create_user(
-            password=validated_data['password'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            access_id=validated_data['access_id'],
-            profile=validated_data['profile'],
-            role=validated_data['role'],
-            site=validated_data['site']
-        )
-        return user
+        try:
+            user = CustomUser.objects.create_user(
+                username=validated_data['username'],
+                first_name=validated_data['first_name'],
+                last_name=validated_data['last_name'],
+                email=validated_data['email'],
+                access_id=validated_data['access_id'],
+                profile=validated_data['profile'],
+                role=validated_data.get('role', 'user'),
+                site=validated_data['site'],
+                password=validated_data['password']
+            )
+            return user
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({'error': str(e)})
 
     def update(self, instance, validated_data):
         instance.first_name = validated_data.get('first_name', instance.first_name)
