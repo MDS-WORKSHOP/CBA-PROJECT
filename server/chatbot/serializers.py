@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File, CustomUser , PasswordReset
 from django.utils import timezone
 from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,3 +91,29 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = '__all__'
+
+class CustomTokenObtainPairSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("No user with this email found.")
+
+        if not user.check_password(password):
+            raise serializers.ValidationError("Incorrect password.")
+
+        if user and user.check_password(password):
+            refresh = RefreshToken.for_user(user)
+
+            return {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+
+        raise serializers.ValidationError("Unable to log in with provided credentials.")
