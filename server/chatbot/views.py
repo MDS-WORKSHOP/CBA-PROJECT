@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File,CustomUser
 from .serializers import CustomUserSerializer, ConversationSerializer, MessageSerializer, AccessRequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer, FileSerializer
 from rest_framework import viewsets
-
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
 class TestConnectionAPI(APIView):
     """
@@ -56,3 +57,6 @@ class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
     permission_classes = [IsAuthenticated]
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
