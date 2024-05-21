@@ -66,6 +66,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class PasswordResetRequestView(APIView):
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response({'detail': 'Password reset link sent.'}, status=status.HTTP_200_OK)

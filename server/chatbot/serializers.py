@@ -8,7 +8,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+import uuid
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,8 +59,12 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         user = CustomUser.objects.get(email=validated_data['email'])
-        reset_token = PasswordReset.objects.create(user=user)
-        print("reset_token:",reset_token)
+        password_reset_data = {
+            'user': user.id
+        }
+        password_reset_serializer = PasswordResetSerializer(data=password_reset_data)
+        password_reset_serializer.is_valid(raise_exception=True)
+        reset_token = password_reset_serializer.save()
         reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token.token}"
         
         # Render the HTML template
@@ -94,13 +98,17 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         return value
 
     def save(self, validated_data):
-        token = validated_data['token']
-        new_password = validated_data['new_password']
-        reset_request = PasswordReset.objects.get(token=token)
-        user = reset_request.user
-        user.set_password(new_password)
-        user.save()
-        reset_request.delete()
+        try:
+            token = validated_data['token']
+            new_password = validated_data['new_password']
+            reset_request = PasswordReset.objects.get(token=token)
+            user = reset_request.user
+            user.set_password(new_password)
+            user.save()
+            reset_request.delete()
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({'error': str(e)})
 
 class PasswordResetSerializer(serializers.ModelSerializer):
     class Meta:
@@ -109,12 +117,17 @@ class PasswordResetSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         expiration_time = validated_data.get('expiration_time', timezone.now() + settings.PASSWORD_RESET_EXPIRATION_TIME)
-        password_reset = PasswordReset.objects.create(
-            user=validated_data['user'],
-            token=validated_data['token'],
-            expiration_time=expiration_time
-        )
-        return password_reset
+        try:
+            password_reset = PasswordReset.objects.create(
+                user=validated_data['user'],
+                token=uuid.uuid4(),
+                expiration_time=expiration_time
+            )
+            return password_reset
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({'error': str(e)})
+
 
 class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
