@@ -145,15 +145,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PASSWORD_RESET_EXPIRATION_TIME = timedelta(hours=1)
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'ssl0.ovh.net'  #serveur SMTP
-EMAIL_PORT = 465  #port SMTP
-EMAIL_HOST_USER = 'noreply@1-prezent.com'
-EMAIL_HOST_PASSWORD = 'u6wMjKv5XMk9pZfy'
-EMAIL_USE_SSL = True  # Utilisez True pour SSL ou False pour TLS, et utilisez EMAIL_USE_TLS = True dans ce dernier cas
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-FRONTEND_URL = 'http://localhost:5173'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')  #serveur SMTP
 EMAIL_PORT = int(os.getenv('EMAIL_PORT'))  #port SMTP
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
