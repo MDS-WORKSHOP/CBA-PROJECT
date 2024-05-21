@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.conf import settings
+import uuid
 
 
 class CustomUser(AbstractUser):
@@ -68,9 +69,9 @@ class File(models.Model):
 
 class PasswordReset(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    token = models.CharField(max_length=255)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    expiration_time = models.DateTimeField(default=timezone.now())
+    expiration_time = models.DateTimeField(default=timezone.now)
 
     def is_expired(self):
         return self.expiration_time < timezone.now()
@@ -78,4 +79,4 @@ class PasswordReset(models.Model):
     def save(self, *args, **kwargs):
         if not self.expiration_time:
             self.expiration_time = timezone.now() + settings.PASSWORD_RESET_EXPIRATION_TIME
-        super().save(*args, **kwargs)       
+        super().save(*args, **kwargs)  
