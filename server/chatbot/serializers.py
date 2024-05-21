@@ -97,8 +97,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         
         return value
 
-    def save(self, validated_data):
+    def save(self):
         try:
+            validated_data = self.validated_data
             token = validated_data['token']
             new_password = validated_data['new_password']
             reset_request = PasswordReset.objects.get(token=token)
