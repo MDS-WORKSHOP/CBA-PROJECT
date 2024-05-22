@@ -3,9 +3,12 @@ from django.contrib.auth.models import User
 from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File, CustomUser , PasswordReset
 from django.utils import timezone
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.utils.html import strip_tags
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+import uuid
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,19 +47,89 @@ class CustomUserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        try:
+            user = CustomUser.objects.get(email=value)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exist.")
+        return value
+
+    def create(self, validated_data):
+        user = CustomUser.objects.get(email=validated_data['email'])
+        password_reset_data = {
+            'user': user.id
+        }
+        password_reset_serializer = PasswordResetSerializer(data=password_reset_data)
+        password_reset_serializer.is_valid(raise_exception=True)
+        reset_token = password_reset_serializer.save()
+        reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token.token}"
+        
+        # Render the HTML template
+        html_content = render_to_string('password_reset_email.html', {'reset_url': reset_url})
+        text_content = strip_tags(html_content)
+
+        email = EmailMultiAlternatives(
+            'Password Reset Request',
+            text_content,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        
+        return reset_token
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.UUIDField()
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_token(self, value):
+        try:
+            reset_request = PasswordReset.objects.get(token=value)
+        except PasswordReset.DoesNotExist:
+            raise serializers.ValidationError("Invalid token.")
+        
+        if reset_request.is_expired():
+            raise serializers.ValidationError("Token has expired.")
+        
+        return value
+
+    def save(self):
+        try:
+            validated_data = self.validated_data
+            token = validated_data['token']
+            new_password = validated_data['new_password']
+            reset_request = PasswordReset.objects.get(token=token)
+            user = reset_request.user
+            user.set_password(new_password)
+            user.save()
+            reset_request.delete()
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({'error': str(e)})
+
 class PasswordResetSerializer(serializers.ModelSerializer):
     class Meta:
         model = PasswordReset
         fields = ['id', 'user', 'token', 'created_at', 'expiration_time']
 
     def create(self, validated_data):
-        password_reset = PasswordReset.objects.create(
-            user=validated_data['user'],
-            token=validated_data['token'],
-            expiration_time=validated_data.get('expiration_time', timezone.now() + settings.PASSWORD_RESET_EXPIRATION_TIME)
-        )
-        return password_reset
-    
+        expiration_time = validated_data.get('expiration_time', timezone.now() + settings.PASSWORD_RESET_EXPIRATION_TIME)
+        try:
+            password_reset = PasswordReset.objects.create(
+                user=validated_data['user'],
+                token=uuid.uuid4(),
+                expiration_time=expiration_time
+            )
+            return password_reset
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({'error': str(e)})
+
+
 class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation

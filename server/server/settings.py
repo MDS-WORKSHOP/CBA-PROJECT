@@ -143,3 +143,28 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PASSWORD_RESET_EXPIRATION_TIME = timedelta(hours=1)
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')  #serveur SMTP
+EMAIL_PORT = int(os.getenv('EMAIL_PORT'))  #port SMTP
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_SSL = True  # Utilisez True pour SSL ou False pour TLS, et utilisez EMAIL_USE_TLS = True dans ce dernier cas
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+FRONTEND_URL = os.getenv('FRONTEND_URL')
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
