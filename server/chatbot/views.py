@@ -11,6 +11,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
 from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
 from .permissions import IsAdmin
+from .utils import send_password_reset_email
+from django.conf import settings
 import uuid
 
 class TestConnectionAPI(APIView):
@@ -100,20 +102,24 @@ class AccessRequestApproveView(APIView):
             default_password = str(uuid.uuid4())
 
             data = {
-                'username': access_request.email,
                 'password': default_password,
                 'email': access_request.email,
                 'first_name': access_request.first_name,
                 'last_name': access_request.last_name,
                 'profile': access_request.profile,
                 'site': access_request.site,
-                'role': 'user'
+                'role': 'user',
             }
             
             # Utiliser le sérialiseur pour créer l'utilisateur
             user_serializer = CustomUserSerializer(data=data)
             if user_serializer.is_valid():
-                user_serializer.save()
+                user = user_serializer.save()
+
+                # Envoyer un email pour réinitialiser le mot de passe
+                reset_url = f"{settings.FRONTEND_URL}/reset-password"
+                send_password_reset_email(user, reset_url)
+
                 return Response({'detail': 'Access request approved and user created.'}, status=status.HTTP_200_OK)
             else:
                 return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
