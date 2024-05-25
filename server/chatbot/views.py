@@ -133,6 +133,9 @@ class AccessRequestRejectView(APIView):
     def post(self, request, pk):
         try:
             access_request = AccessRequest.objects.get(pk=pk)
+            if access_request.status == 'approved':
+                return Response({'error': 'Cannot reject an already approved access request.'}, status=status.HTTP_400_BAD_REQUEST)
+
             access_request.status = 'rejected'
             access_request.save()
             return Response({'detail': 'Access request rejected.'}, status=status.HTTP_200_OK)
