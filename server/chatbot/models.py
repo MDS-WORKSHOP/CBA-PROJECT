@@ -35,6 +35,7 @@ class AccessRequest(models.Model):
     email = models.EmailField()
     site = models.CharField(max_length=3, choices=[('CDG', 'CDG'), ('VLR', 'VLR'), ('ORY', 'ORY')])
     reason = models.CharField(max_length=20, choices=[('authorization', 'Authorization'), ('password_reset', 'Password Reset')])
+    status = models.CharField(max_length=8, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
