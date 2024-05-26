@@ -142,7 +142,19 @@ class MessageSerializer(serializers.ModelSerializer):
 class AccessRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccessRequest
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'profile', 'email', 'site', 'reason', 'created_at', 'updated_at', 'status']
+        read_only_fields = ['status', 'created_at', 'updated_at']
+
+    def validate_email(self, value):
+        # Vérifier s'il existe déjà une demande avec cet email
+        if AccessRequest.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A request with this email already exists.")
+        
+        # Vérifier s'il existe déjà un utilisateur avec cet email
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        
+        return value
 
 class InstrumentSerializer(serializers.ModelSerializer):
     class Meta:
