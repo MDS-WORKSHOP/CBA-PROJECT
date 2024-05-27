@@ -13,17 +13,16 @@ import uuid
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['username', 'id', 'password', 'first_name', 'last_name', 'email', 'access_id', 'profile', 'role', 'site', 'created_at', 'updated_at']
+        fields = ['id', 'password', 'first_name', 'last_name', 'email', 'profile', 'role', 'site', 'created_at', 'updated_at']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         try:
             user = CustomUser.objects.create_user(
-                username=validated_data['username'],
+                username=validated_data['email'],
                 first_name=validated_data['first_name'],
                 last_name=validated_data['last_name'],
                 email=validated_data['email'],
-                access_id=validated_data['access_id'],
                 profile=validated_data['profile'],
                 role=validated_data.get('role', 'user'),
                 site=validated_data['site'],
@@ -38,7 +37,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
-        instance.access_id = validated_data.get('access_id', instance.access_id)
+        instance.username = validated_data.get('email', instance.email)
         instance.profile = validated_data.get('profile', instance.profile)
         instance.role = validated_data.get('role', instance.role)
         instance.site = validated_data.get('site', instance.site)
@@ -143,7 +142,19 @@ class MessageSerializer(serializers.ModelSerializer):
 class AccessRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccessRequest
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'profile', 'email', 'site', 'reason', 'created_at', 'updated_at', 'status']
+        read_only_fields = ['status', 'created_at', 'updated_at']
+
+    def validate_email(self, value):
+        # Vérifier s'il existe déjà une demande avec cet email
+        if AccessRequest.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A request with this email already exists.")
+        
+        # Vérifier s'il existe déjà un utilisateur avec cet email
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        
+        return value
 
 class InstrumentSerializer(serializers.ModelSerializer):
     class Meta:
