@@ -149,7 +149,8 @@ EMAIL_HOST = os.getenv('EMAIL_HOST')  #serveur SMTP
 EMAIL_PORT = int(os.getenv('EMAIL_PORT'))  #port SMTP
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_SSL = True  # Utilisez True pour SSL ou False pour TLS, et utilisez EMAIL_USE_TLS = True dans ce dernier cas
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')  # Utilisez True pour SSL ou False pour TLS, et utilisez EMAIL_USE_TLS = True dans ce dernier cas
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 FRONTEND_URL = os.getenv('FRONTEND_URL')
 
