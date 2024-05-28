@@ -77,7 +77,12 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             [user.email],
         )
         email.attach_alternative(html_content, "text/html")
-        email.send()
+        try:
+            email.send()
+        except Exception as e:
+            print(e)
+            raise serializers.ValidationError({'error': str(e)})
+        
         
         return reset_token
 
