@@ -1,41 +1,18 @@
+<!-- create a new file in the client/src directory called Home1.vue -->
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
-import { useRoute, useRouter } from 'vue-router'
-const email = ref('')
-const password = ref('')
-const route = useRoute()
+import { useRouter } from 'vue-router'
 const router = useRouter()
-const showPassord = ref(false)
-const Login = (e: Event) => {
-  e.preventDefault()
-  axios.post('http://localhost:8000/api/token/', { email: email.value, password: password.value })
-    .then(res => {
-      localStorage.setItem('accessToken', res.data.access)
-      document.cookie = `refreshToken=${res.data.refresh}`
-      alert('Login successful')
-      router.push('/')
-    })
-    .catch(err => {
-      console.log(err.message)
-      alert('Login failed')
-    })
+const Logout = () => {
+  localStorage.removeItem('accessToken')
+  document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+  router.push('/login')
 }
 </script>
-
-
 <template>
   <div class="flex flex-col items-center my-2">
-    <h1 class="text-3xl font-bold">Authentification</h1>
-    <form class="flex flex-col items-center" @submit="Login">
-      <input type="email" v-model="email" placeholder="Email" class="p-2 m-6 border border-gray-300 rounded-md w-full">
-      <input type="password" v-model="password" placeholder="Password" class="p-2 m-2 border border-gray-300 rounded-md w-full">
-      <button type="submit" class="bg-blue-500 text-white p-2 m-2 rounded-full w-full">Login</button>
-      <RouterLink to="/request-reset-password" class="text-blue-500">Forgot password?</RouterLink>
-    </form>
+    <h1 class="text-3xl font-bold">Home</h1>
+    <p>Welcome to the home page</p>
+    <button class="bg-red-500 text-white p-2 m-2 rounded-full" @click="Logout">Logout</button>
   </div>
 </template>
-
-<style scoped>
-
-</style>
