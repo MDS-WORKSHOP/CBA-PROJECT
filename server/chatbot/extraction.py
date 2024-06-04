@@ -6,7 +6,7 @@ from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import CharacterTextSplitter
 
-from llms import (
+from chatbot.llms import (
     get_openai_llm,
     get_embedding_openai,
 )
@@ -162,10 +162,10 @@ def extract_information(file_path, schema):
     }
 
     extractor = prompt | model.with_structured_output(schema=schema_mapping.get(schema, InstrumentCharacteristics))
-
-    loader = PyPDFLoader(file_path=file_path)
+    print(f"Extracting information from {file_path} using schema {schema}")
+    loader = PyPDFLoader(file_path="./" + file_path)
     documents = loader.load()
-
+    print(f"Loaded {len(documents)} documents")
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     docs = text_splitter.split_documents(documents)
 

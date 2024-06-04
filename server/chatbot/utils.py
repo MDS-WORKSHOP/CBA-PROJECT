@@ -2,6 +2,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
+import hashlib
 
 def send_password_reset_email(user, reset_url):
     subject = 'Set your password'
@@ -11,3 +12,10 @@ def send_password_reset_email(user, reset_url):
     email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [user.email])
     email.attach_alternative(html_content, "text/html")
     email.send()
+
+
+def calculate_md5(file):
+    hash_md5 = hashlib.md5()
+    for chunk in file.chunks():
+        hash_md5.update(chunk)
+    return hash_md5.hexdigest()

@@ -4,15 +4,18 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from django.contrib.auth.models import User
-from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File,CustomUser
-from .serializers import CustomUserSerializer, ConversationSerializer, MessageSerializer, AccessRequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer, FileSerializer
+from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, Document,CustomUser
+from .serializers import CustomUserSerializer, ConversationSerializer, MessageSerializer, AccessRequestSerializer, InstrumentSerializer, EquivalentSerializer, InstrumentFeatureSerializer
 from rest_framework import viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer
-from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+from .serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer,DocumentSerializer
 from .permissions import IsAdmin
 from .utils import send_password_reset_email
 from django.conf import settings
+from .extraction import extract_information
+from rest_framework.parsers import MultiPartParser, FormParser
+from .utils import calculate_md5
 import uuid
 
 class TestConnectionAPI(APIView):
@@ -53,10 +56,31 @@ class InstrumentFeatureViewSet(viewsets.ModelViewSet):
     serializer_class = InstrumentFeatureSerializer
     permission_classes = [IsAuthenticated]
 
-class FileViewSet(viewsets.ModelViewSet):
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
-    permission_classes = [IsAuthenticated]
+class DocumentUploadView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def post(self, request, *args, **kwargs):
+        file_serializer = DocumentSerializer(data=request.data)
+        try:
+            if file_serializer.is_valid():
+                # Calculer le hachage MD5 du fichier
+                file = request.FILES['file']
+                md5_hash = calculate_md5(file)
+
+                # Vérifier si un document avec ce hachage existe déjà
+                if Document.objects.filter(md5_hash=md5_hash).exists():
+                    return Response({'error': 'This document has already been uploaded.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                # Sauvegarder le document
+                document = file_serializer.save(md5_hash=md5_hash)
+                file_path = file_serializer.data['file']
+                result = extract_information(file_path, request.data.get('schema'))
+                return Response(result, status=status.HTTP_201_CREATED)
+            else:
+                return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

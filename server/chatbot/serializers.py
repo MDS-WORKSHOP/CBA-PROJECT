@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, File, CustomUser , PasswordReset
+from .models import Conversation, Message, AccessRequest, Instrument, Equivalent, InstrumentFeature, CustomUser , PasswordReset, Document
 from django.utils import timezone
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -176,10 +176,10 @@ class InstrumentFeatureSerializer(serializers.ModelSerializer):
         model = InstrumentFeature
         fields = '__all__'
 
-class FileSerializer(serializers.ModelSerializer):
+class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = File
-        fields = '__all__'
+        model = Document
+        fields = ['id', 'file']
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
     email = serializers.EmailField()
