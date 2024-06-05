@@ -81,7 +81,23 @@ class DocumentUploadView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class DocumentListView(generics.ListAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = [IsAdmin]
 
+class DocumentDeleteView(APIView):
+    permission_classes = [IsAdmin]
+
+    def delete(self, request, pk, format=None):
+        try:
+            document = Document.objects.get(pk=pk)
+            document.file.delete(save=False)  # Supprime le fichier du stockage
+            document.delete()  # Supprime l'enregistrement de la base de données
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Document.DoesNotExist:
+            return Response({'error': 'Document not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
