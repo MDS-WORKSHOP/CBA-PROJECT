@@ -75,7 +75,7 @@ class DocumentUploadView(APIView):
                 # Sauvegarder le document
                 document = file_serializer.save(md5_hash=md5_hash)
                 file_path = file_serializer.data['file']
-
+                print(file_path)
                 # Ajouter le document dans Chroma DB
                 schema_type = request.data.get('schema')
                 add_document_to_chroma(str(document.id), schema_type, file_path)
@@ -91,10 +91,10 @@ class DocumentUploadView(APIView):
 class DocumentListView(generics.ListAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
 
 class DocumentDeleteView(APIView):
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
 
     def delete(self, request, pk, format=None):
         try:

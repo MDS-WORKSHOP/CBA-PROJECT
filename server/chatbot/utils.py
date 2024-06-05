@@ -19,3 +19,17 @@ def calculate_md5(file):
     for chunk in file.chunks():
         hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+def filter_complex_metadata(metadata):
+    """
+    Filtrer les métadonnées pour ne conserver que les types simples.
+
+    Args:
+        metadata (dict): Les métadonnées à filtrer.
+
+    Returns:
+        dict: Les métadonnées filtrées.
+    """
+    simple_types = (str, int, float, bool)
+    filtered_metadata = {k: v for k, v in metadata.items() if isinstance(v, simple_types)}
+    return filtered_metadata
