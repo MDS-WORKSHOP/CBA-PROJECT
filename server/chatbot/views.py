@@ -15,6 +15,7 @@ from .utils import send_password_reset_email
 from django.conf import settings
 from .extraction import extract_information
 from rest_framework.parsers import MultiPartParser, FormParser
+from .chroma_utils import add_document_to_chroma, delete_document_from_chroma
 from .utils import calculate_md5
 import uuid
 
@@ -74,7 +75,13 @@ class DocumentUploadView(APIView):
                 # Sauvegarder le document
                 document = file_serializer.save(md5_hash=md5_hash)
                 file_path = file_serializer.data['file']
-                result = extract_information(file_path, request.data.get('schema'))
+
+                # Ajouter le document dans Chroma DB
+                schema_type = request.data.get('schema')
+                add_document_to_chroma(str(document.id), schema_type, file_path)
+
+                # result = extract_information(file_path, request.data.get('schema'))
+                result = 'Document uploaded successfully.'
                 return Response(result, status=status.HTTP_201_CREATED)
             else:
                 return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -94,6 +101,8 @@ class DocumentDeleteView(APIView):
             document = Document.objects.get(pk=pk)
             document.file.delete(save=False)  # Supprime le fichier du stockage
             document.delete()  # Supprime l'enregistrement de la base de données
+            # Supprimer le document de Chroma DB
+            delete_document_from_chroma(str(document.id))
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Document.DoesNotExist:
             return Response({'error': 'Document not found.'}, status=status.HTTP_404_NOT_FOUND)
