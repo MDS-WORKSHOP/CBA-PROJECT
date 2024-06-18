@@ -60,10 +60,10 @@ class InstrumentFeature(models.Model):
     value = models.CharField(max_length=255)  # Feature value
     unit = models.CharField(max_length=50)  # Unit of measurement, e.g., "MHz", "GS/s"
 
-class File(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    file_name = models.CharField(max_length=255)
-    file_path = models.CharField(max_length=255)
+class Document(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to='documents/')
+    md5_hash = models.CharField(max_length=32, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
