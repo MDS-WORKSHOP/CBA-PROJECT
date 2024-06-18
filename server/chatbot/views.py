@@ -17,6 +17,7 @@ from .extraction import extract_information
 from rest_framework.parsers import MultiPartParser, FormParser
 from .chroma_utils import add_document_to_chroma, delete_document_from_chroma
 from .utils import calculate_md5
+from .services import handle_user_question
 import uuid
 
 class TestConnectionAPI(APIView):
@@ -59,11 +60,15 @@ class InstrumentFeatureViewSet(viewsets.ModelViewSet):
 
 class DocumentUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
-    
+
     def post(self, request, *args, **kwargs):
         file_serializer = DocumentSerializer(data=request.data)
         try:
             if file_serializer.is_valid():
+                # Vérifiez si le fichier est présent dans la requête
+                if 'file' not in request.FILES:
+                    return Response({'error': 'File not found in request.'}, status=status.HTTP_400_BAD_REQUEST)
+
                 # Calculer le hachage MD5 du fichier
                 file = request.FILES['file']
                 md5_hash = calculate_md5(file)
@@ -190,3 +195,36 @@ class AccessRequestRejectView(APIView):
             return Response({'detail': 'Access request rejected.'}, status=status.HTTP_200_OK)
         except AccessRequest.DoesNotExist:
             return Response({'error': 'Access request not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+class AskQuestionView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        question = request.data.get('question')
+        conversation_id = request.data.get('conversation_id', None)
+        
+        if not question:
+            return Response({'error': 'Question is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Rechercher une conversation existante si conversation_id est fourni
+        if conversation_id:
+            try:
+                conversation = Conversation.objects.get(id=conversation_id, user=user)
+            except Conversation.DoesNotExist:
+                return Response({'error': 'Conversation not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Créer une nouvelle conversation si conversation_id n'est pas fourni
+            conversation = Conversation.objects.create(user=user)
+
+        try:
+            result = handle_user_question(user, question, conversation)
+            conversation_serializer = ConversationSerializer(result)
+            return Response({
+                'ai_response': result
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': 'An error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

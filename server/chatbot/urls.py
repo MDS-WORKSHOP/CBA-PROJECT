@@ -4,7 +4,7 @@ from .views import CustomUserViewSet, ConversationViewSet, MessageViewSet
 from .views import PasswordResetRequestView, PasswordResetConfirmView,InstrumentViewSet, EquivalentViewSet, InstrumentFeatureViewSet
 from .views import AccessRequestCreateView, AccessRequestListView, AccessRequestApproveView, AccessRequestRejectView
 from rest_framework.routers import DefaultRouter
-from .views import DocumentUploadView,DocumentListView,DocumentDeleteView
+from .views import DocumentUploadView,DocumentListView,DocumentDeleteView,AskQuestionView
 
 router = DefaultRouter()
 router.register(r'users', CustomUserViewSet)
@@ -27,5 +27,5 @@ urlpatterns = [
     path('documents/upload/', DocumentUploadView.as_view(), name='document-upload'),
     path('documents/', DocumentListView.as_view(), name='document-list'),
     path('documents/<int:pk>/', DocumentDeleteView.as_view(), name='document-delete'),
-
+    path('ask/', AskQuestionView.as_view(), name='ask-question'),
 ]
