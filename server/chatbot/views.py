@@ -18,6 +18,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .chroma_utils import add_document_to_chroma, delete_document_from_chroma
 from .utils import calculate_md5
 from .services import handle_user_question
+from django.forms.models import model_to_dict
 import uuid
 
 class TestConnectionAPI(APIView):
@@ -85,9 +86,10 @@ class DocumentUploadView(APIView):
                 schema_type = request.data.get('schema')
                 add_document_to_chroma(str(document.id), schema_type, file_path)
 
-                # result = extract_information(file_path, request.data.get('schema'))
-                result = 'Document uploaded successfully.'
-                return Response(result, status=status.HTTP_201_CREATED)
+                instrument = extract_information(file_path, request.data.get('schema'))
+                instrument_dict = model_to_dict(instrument)
+#                 result = 'Document uploaded successfully.'
+                return Response(instrument_dict, status=status.HTTP_201_CREATED)
             else:
                 return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:

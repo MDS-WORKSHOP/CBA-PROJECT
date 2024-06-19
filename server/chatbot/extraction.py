@@ -5,24 +5,20 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import CharacterTextSplitter
-
+import json
+from .models import Instrument
 from chatbot.llms import (
     get_openai_llm,
     get_embedding_openai,
 )
 
-class DynamicSpecification(BaseModel):
-    details: Dict[str, str] = Field(default={}, description="Details of specifications like range, accuracy, resolution. Example: 'DC Voltage: 300mV-1000V, ±0.025% + 2, 1 µV-0.01V'")
-    
-class DynamicCharacteristics(BaseModel):
-    details: Dict[str, str] = Field(default={}, description="Details of characteristics like display type, size, weight, dimensions. Example: 'Display Type: TFT LCD, Display Size: 5.7 inches, Weight: 2 kg'")
-
 class InstrumentCharacteristics(BaseModel):
     name: Optional[str] = Field(default=None, description="The name of the instrument")
+    type: Optional[str] = Field(default=None, description="type of instrument in english")
     part_number: Optional[str] = Field(default=None, description="Part number of the instrument")
     manufacturer: Optional[str] = Field(default=None, description="Manufacturer of the instrument")
-    specifications: Optional[DynamicSpecification] = Field(default=None, description="General specifications of the instrument")
-    characteristics: Optional[DynamicCharacteristics] = Field(default=None, description="General characteristics of the instrument")
+    specifications: Optional[List[str]] = Field(default=None, description="General specifications of the instrument")
+    characteristics: Optional[List[str]] = Field(default=None, description="General characteristics of the instrument")
     performance: Optional[List[str]] = Field(default=None, description="Performance characteristics of the instrument")
     physical: Optional[List[str]] = Field(default=None, description="Physical characteristics of the instrument")
     input_output: Optional[List[str]] = Field(default=None, description="Input/Output characteristics of the instrument")
@@ -171,7 +167,7 @@ def extract_information(file_path, schema):
 
     embedding_function = get_embedding_openai()
 
-    vector_db = Chroma.from_documents(docs, embedding_function)
+    vector_db = Chroma.from_documents(docs, embedding_function,collection_name="extraction")
     retriever = vector_db.as_retriever(search_kwargs={"k": 6})
 
     rag_extractor = {
@@ -186,4 +182,12 @@ def extract_information(file_path, schema):
     )
 
     results = rag_extractor.invoke(extractor_prompt)
-    return results
+    instrument_data = {}
+    for item in results:
+        key = item[0]
+        value = item[1]
+        if isinstance(value, list):
+            value = json.dumps(value)  # Convert list to JSON string
+        instrument_data[key] = value
+    instrument = Instrument.objects.create(**instrument_data)
+    return instrument

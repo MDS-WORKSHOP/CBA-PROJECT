@@ -28,12 +28,12 @@ def add_document_to_chroma(doc_id, schema_type, file_path):
         if not chunks:
             raise ValueError("No chunks created from documents.")
 
-        # for doc in docs:
-        #     additional_metadata = filter_complex_metadata({"doc_id": doc_id, "schema_type": schema_type})
-        #     if doc.metadata:
-        #         doc.metadata.update(additional_metadata)
-        #     else:
-        #         doc.metadata = additional_metadata
+#         for doc in docs:
+#             additional_metadata = filter_complex_metadata({"doc_id": doc_id, "schema_type": schema_type})
+#             if doc.metadata:
+#                 doc.metadata.update(additional_metadata)
+#             else:
+#                 doc.metadata = additional_metadata
 
         print("Adding document to Chroma DB", doc_id, schema_type, file_path)
         Chroma.from_documents(
