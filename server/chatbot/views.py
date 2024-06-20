@@ -201,6 +201,14 @@ class AccessRequestRejectView(APIView):
             return Response({'detail': 'Access request rejected.'}, status=status.HTTP_200_OK)
         except AccessRequest.DoesNotExist:
             return Response({'error': 'Access request not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+class getCurrentUser(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_serialized = CustomUserSerializer(user).data
+        return Response(user_serialized, status=status.HTTP_200_OK)
 
 class AskQuestionView(APIView):
     permission_classes = [IsAuthenticated]
