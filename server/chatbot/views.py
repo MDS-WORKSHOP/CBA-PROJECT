@@ -84,7 +84,7 @@ class DocumentUploadView(APIView):
                 print(file_path)
                 # Ajouter le document dans Chroma DB
                 schema_type = request.data.get('schema')
-                add_document_to_chroma(str(document.id), schema_type, file_path)
+                # add_document_to_chroma(str(document.id), schema_type, file_path)
 
                 instrument = extract_information(file_path, request.data.get('schema'))
                 instrument_dict = model_to_dict(instrument)
@@ -164,7 +164,7 @@ class AccessRequestApproveView(APIView):
                 'last_name': access_request.last_name,
                 'profile': access_request.profile,
                 'site': access_request.site,
-                'role': 'user',
+                'role': 'admin',
             }
             
             # Utiliser le sérialiseur pour créer l'utilisateur

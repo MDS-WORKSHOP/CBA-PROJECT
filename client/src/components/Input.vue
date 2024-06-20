@@ -5,7 +5,8 @@
       v-model="modelValue"
       :placeholder="props.placeholder"
       :type="props.type"
-      class="p-2 pl-8 border border-gray-300 w-full"
+      class="py-4 border border-gray-300 w-full"
+      :class="$slots.icon ? 'pl-8' : 'pl-4'"
       v-bind="$attrs"
     />
     <slot name="icon" />

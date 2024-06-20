@@ -4,7 +4,6 @@ import { deleteTokens } from '../utils/tokens';
 
 const api = axios.create({
   baseURL: 'http://localhost:8000/api',
-  timeout: 1000,
   headers: {
     'Content-Type': 'application/json',
   },
