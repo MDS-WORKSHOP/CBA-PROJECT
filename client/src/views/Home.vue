@@ -1,76 +1,9 @@
-<script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import ChatMessage from '../components/Chat/ChatMessage.vue';
-import ChatInput from '../components/Chat/ChatInput.vue';
-import Modal from '../components/Chat/Modal.vue';
-
-const messages = ref<{ sender: string, text: string }[]>([]);
-const isLoading = ref(false);
-const isFileUploadModalVisible = ref(false);
-const chatContainer = ref<HTMLElement | null>(null);
-const router = useRouter();
-const messagesContainer = ref<HTMLElement | null>(null);
-import api from '../services/api';
-
-const ask = async (text: string) => {
-  try {
-    const response = await api.post('/ask/', { question: text });
-    console.log(response.data)
-    return response.data.ai_response;
-    isLoading.value = false;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-const sendMessage = async (text: string) => {
-  messages.value.push({ sender: 'user', text });
-  isLoading.value = true;
-  const response = await ask(text);
-  if (response) {
-    messages.value.push({ sender: 'bot', text: response });
-  }
-  nextTick(() => {
-    scrollToBottom();
-  });
-  // setTimeout(() => {
-  //   messages.value.push({ sender: 'bot', text: 'Je suis George, que puis-je faire pour vous ?' });
-  //   isLoading.value = false;
-  //   nextTick(() => {
-  //     scrollToBottom();
-  //   });
-  // }, 1000);
-};
-
-const scrollToBottom = () => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-  }
-};
-
-const toggleFileUploadModal = () => {
-  isFileUploadModalVisible.value = !isFileUploadModalVisible.value;
-};
-
-const logout = () => {
-  localStorage.removeItem('accessToken');
-  document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  router.push('/login');
-};
-
-onMounted(() => {
-  scrollToBottom();
-});
-</script>
-
 <template>
   <div class="flex flex-col h-screen bg-gray-100">
-    <header class="p-4 text-center font-bold text-2xl flex justify-between items-center">
+    <header class="p-4 text-center font-bold text-xl flex justify-between items-center relative">
       <div></div>
-      <span>CBA - AIR FRANCE KLM</span>
-      <button class="bg-red-500 text-white p-2 m-2" @click="logout">Déconnexion</button>
+      <RouterLink to="/"><span>CBA - AIR FRANCE KLM</span></RouterLink>
+      <DropDown class="absolute right-24" />
     </header>
     <div class="flex-grow grid grid-cols-12 p-4">
       <div class="col-span-1"></div>
@@ -78,8 +11,16 @@ onMounted(() => {
       <div class="col-span-1"></div>
       <div ref="messagesContainer" class="col-span-6 flex flex-col h-3/4 overflow-scroll">
         <div class="flex-grow p-4" ref="chatContainer">
-          <div>
+          <div v-if="messages.length">
             <ChatMessage class="my-8" v-for="(message, index) in messages" :key="index" :message="message" />
+          </div>
+          <div v-else class="text-center text-3xl font-medium flex flex-col justify-center items-center">
+            <div>
+              <span>Bonjour, je suis George</span>
+                <GeorgeIcon class="inline-block mx-2" />
+                <br />
+              <span>qu’est-ce que je peux faire pour vous ?</span>
+            </div>
           </div>
         </div>
       </div>
@@ -103,6 +44,75 @@ onMounted(() => {
     <Modal :isVisible="isFileUploadModalVisible" @close="toggleFileUploadModal" />
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, nextTick, onMounted } from 'vue';
+import ChatMessage from '../components/Chat/ChatMessage.vue';
+import ChatInput from '../components/Chat/ChatInput.vue';
+import Modal from '../components/Chat/Modal.vue';
+import DropDown from '../components/DropDown.vue';
+import GeorgeIcon from '../components/Icons/GeorgeIcon.vue';
+
+const messages = ref<{ sender: string, text: string }[]>([]);
+const isLoading = ref(false);
+const isFileUploadModalVisible = ref(false);
+const chatContainer = ref<HTMLElement | null>(null);
+const messagesContainer = ref<HTMLElement | null>(null);
+import api from '../services/api';
+
+const ask = async (text: string) => {
+  try {
+    const conversionId = sessionStorage.getItem('conversionId');
+    if (!conversionId) {
+      const response = await api.post('/conversations/');
+      sessionStorage.setItem('conversionId', response.data.id);
+      return askQuestion(text, response.data.id);
+    } else {
+      return askQuestion(text, conversionId);
+    }
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const askQuestion = async (text: string, conversionId: any) => {
+  try {
+    const response = await api.post('/ask/', { question: text, conversation_id: conversionId});
+    return response.data.ai_response;
+    isLoading.value = false;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const sendMessage = async (text: string) => {
+  messages.value.push({ sender: 'user', text });
+  isLoading.value = true;
+  const response = await ask(text);
+  if (response) {
+    messages.value.push({ sender: 'bot', text: response });
+  }
+  nextTick(() => {
+    scrollToBottom();
+  });
+};
+
+const scrollToBottom = () => {
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+  }
+};
+
+const toggleFileUploadModal = () => {
+  isFileUploadModalVisible.value = !isFileUploadModalVisible.value;
+};
+
+onMounted(() => {
+  scrollToBottom();
+});
+</script>
 
 <style scoped>
 </style>
