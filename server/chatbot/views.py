@@ -102,10 +102,10 @@ class DocumentUploadView(APIView):
 class DocumentListView(generics.ListAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
 
 class DocumentDeleteView(APIView):
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
 
     def delete(self, request, pk, format=None):
         try:
