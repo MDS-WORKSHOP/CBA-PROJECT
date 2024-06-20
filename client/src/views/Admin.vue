@@ -62,6 +62,7 @@ onMounted(() => {
 const getUsers = async () => {
   const response = await api.get('/access-requests/list/');
   const toto = response.data.map((request: any) => {
+    request.created_at = convertDate(new Date(request.created_at));
     if (request.status === 'pending') {
       request.status = 'en attente'
     }
@@ -75,6 +76,13 @@ const getUsers = async () => {
   })
   console.log(toto);
   clients.value = toto;
+};
+
+const convertDate = (date: Date) => {
+  const day = date.getDate();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 const rejectRequest = async (id: number) => {

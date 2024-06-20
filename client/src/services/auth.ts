@@ -8,9 +8,10 @@ const login = async (email: string, password: string): Promise<Auth | undefined>
     const response = await api.post("/token/", { email, password });
     localStorage.setItem("accessToken", response.data.access);
     document.cookie = `refreshToken=${response.data.refresh}`;
-  } catch (error) {
-    console.error(error);
-    return undefined;
+    return response.data;
+  } catch (error: any) {
+    console.error(error.response.data.non_field_errors[0]);
+    throw new Error(error.response.data.non_field_errors[0]);
   }
 }
 
@@ -34,8 +35,9 @@ const requestAccess = async (form: AccessRequestForm): Promise<void> => {
   const { email, password, last_name, first_name, site, profile } = form;
   try {
     await api.post("/access-requests/", { email, password, last_name, first_name, site, profile, reason: 'authorization' });
-  } catch (error) {
-    console.error(error);
+  } catch (error:any) {
+    console.error(error.response.data);
+    throw new Error(error.response.data.email[0]);
   }
 }
 
