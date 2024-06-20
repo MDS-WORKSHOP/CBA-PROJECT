@@ -1,5 +1,5 @@
 <template>
-  <select v-model="modelValue" class="py-4 border border-gray-300 w-full pl-3">
+  <select v-model="modelValue" class="py-4 border border-gray-300 w-full pl-3 outline-none">
     <option value="" disabled>{{ props.placeholder }}</option>
     <option v-for="option in props.options" :value="option">{{ option }}</option>
   </select>
