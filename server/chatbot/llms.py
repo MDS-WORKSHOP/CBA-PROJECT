@@ -4,12 +4,12 @@ import httpx
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 
-os.environ["PROXY_URL"] = "http://localhost:8000"
-os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"] = "openai-chatbot"
-os.environ["AZURE_OPENAI_API_BASE"] = "https://openai.azure-api.net"
-os.environ["AZURE_OPENAI_API_VERSION"] = "v1"
-os.environ["AZURE_OPENAI_API_KEY"] = "YOUR_AZURE_OPENAI_API_KEY"
-os.environ["OPENAI_API_KEY"] = "sk-proj-c2X9keFTpnnVHKNhoRUiT3BlbkFJd3KCUSDk6zR49lPJadq1"
+os.environ["PROXY_URL"] = os.getenv('PROXY_URL')
+os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"] = os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME')
+os.environ["AZURE_OPENAI_API_BASE"] = os.getenv('AZURE_OPENAI_API_BASE')
+os.environ["AZURE_OPENAI_API_VERSION"] = os.getenv('AZURE_OPENAI_API_VERSION')
+os.environ["AZURE_OPENAI_API_KEY"] = os.getenv('AZURE_OPENAI_API_KEY')
+os.environ["OPENAI_API_KEY"] = os.getenv('OPENAI_API_KEY')
 @lru_cache(maxsize=4)
 def get_openai_llm(gpt_4: bool = False, azure: bool = False):
     proxy_url = os.environ["PROXY_URL"]
