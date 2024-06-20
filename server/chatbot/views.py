@@ -88,8 +88,9 @@ class DocumentUploadView(APIView):
 
                 instrument = extract_information(file_path, request.data.get('schema'))
                 instrument_dict = model_to_dict(instrument)
+                instrument_serialized = InstrumentSerializer(instrument).data
 #                 result = 'Document uploaded successfully.'
-                return Response(instrument_dict, status=status.HTTP_201_CREATED)
+                return Response(instrument_serialized, status=status.HTTP_201_CREATED)
             else:
                 return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
