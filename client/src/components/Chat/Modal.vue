@@ -3,7 +3,7 @@
     <div class="relative flex flex-col justify-evenly bg-white p-6 rounded-lg w-3/4 h-3/4">
       <button @click="$emit('close')" class="text-gray-500 absolute top-0 right-0 mr-2">&times;</button>
       <div v-if="!isPdfPreviewVisible">
-        <UploadFileModal @fileUploaded="handleFileUploaded" />
+        <UploadFileModal @fileUploaded="handleFileUploaded" @close="close" />
       </div>
       <div v-else>
         <PdfPreviewForm :data="pdfData" @close="closePdfPreview" />
@@ -31,8 +31,12 @@ const handleFileUploaded = (data) => {
   isPdfPreviewVisible.value = true;
 };
 
+
 const closePdfPreview = () => {
   isPdfPreviewVisible.value = false;
+  emit('close');
+};
+const close = () => {
   emit('close');
 };
 </script>

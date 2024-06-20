@@ -9,12 +9,14 @@
         </div>
         <div class="w-1/2 h-full overflow-auto p-4">
           <h2 class="text-xl font-bold text-center mb-4">Informations du PDF</h2>
-          <form @submit.prevent="submitForm">
-            <div v-for="(value, key) in formData" :key="key" class="mb-4">
-              <label :for="key" class="block text-gray-700">{{ key }}</label>
-              <input :id="key" v-model="formData[key]" class="w-full p-2 border rounded" />
-            </div>
-            <button type="submit" class="bg-blue-500 text-white p-2 rounded">Soumettre</button>
+          <form @submit.prevent="submitForm" class="bg-[#F9F9F9] px-6">
+            <template v-for="(value, key) in formData" :key="key" class="mb-4 p-4">
+              <div v-if="value !== null && value !== '' && !(Array.isArray(value) && value.length === 0)" class="px-2 py-3">
+                <label :for="key" class="block text-[#051039] normal-case">{{ key }}</label>
+                <input :id="key" v-model="formData[key]" class="w-full bg-[#F9F9F9] pt-2 px-2 pb-6 border-b-2 outline-none" readonly />
+              </div>
+            </template>
+            <Button type="submit" size="p-2" class="mt-5 py-4 mb-2">Valider les informations</Button>
           </form>
         </div>
       </div>
@@ -24,6 +26,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import Button from '../Button.vue';
 
 const props = defineProps({
   data: {
@@ -43,8 +46,6 @@ const pdfUrl = computed(() => {
 const formData = ref<{ [key: string]: any }>({ ...props.data.form });
 
 const submitForm = () => {
-  console.log('Form data submitted:', formData.value);
-  // Envoyer les données au back-end si nécessaire
   emit('close');
 };
 
