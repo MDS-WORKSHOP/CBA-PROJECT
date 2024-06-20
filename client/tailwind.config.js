@@ -9,7 +9,8 @@ export default {
       colors: {
         title: '#091B62',
         subtitle: '#666975',
-        button: '#0800B9'
+        button: '#0045B6',
+        link: '#091B62'
       },
       fontFamily: {
         norms: ['"TT Norms Pro"', 'sans-serif'],

@@ -1,17 +1,20 @@
 import { createWebHistory, createRouter } from 'vue-router'
 import DefaultLayout from './layouts/DefaultLayout.vue'
 import AuthLayout from './layouts/Auth.vue'
-import Login from './Login.vue'
-import RequestResetPassword from './RequestResetPassword.vue'
-import ResetPassword from './ResetPassword.vue'
-import Home from './Home.vue'
+import Login from './views/Login.vue'
+import RequestResetPassword from './views/RequestResetPassword.vue'
+import ResetPassword from './views/ResetPassword.vue'
+import Home from './views/Home.vue'
+import RequestAcess from './views/RequestAcess.vue'
+import Admin from './views/Admin.vue'
 
 const routes = [
   {
     path: '/',
     component: DefaultLayout,
     children: [
-      { path: '', component: Home }
+      { path: '', component: Home },
+      { path: '/admin', component: Admin }
     ]
   },
   {
@@ -34,6 +37,13 @@ const routes = [
     children: [
       { path: '', component: ResetPassword }
     ]
+  },
+  {
+    path: '/request-access',
+    component: AuthLayout,
+    children: [
+      { path: '', component: RequestAcess }
+    ]
   }
 ];
 
@@ -43,7 +53,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/', '/login', '/request-reset-password', '/reset-password']
+  const publicPages = ['/', '/login', '/request-reset-password', '/reset-password', '/request-access']
   const authRequired = !publicPages.includes(to.path)
   const loggedIn = localStorage.getItem('accessToken')
 
