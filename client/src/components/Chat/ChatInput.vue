@@ -1,16 +1,18 @@
 <template>
   <div class="p-4 border-t border-gray-200 flex items-center">
-    <div class="relative w-full">
+    <div class="relative w-full flex">
       <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         <LoopIcon />
       </span>
-      <input
-        type="text"
+      <textarea
         v-model="message"
         @keydown.enter="submitMessage"
-        class="w-full pl-12 py-5 bg-[#051039] text-white"
+        class="w-full pl-12 pr-16 py-5 bg-[#051039] text-white resize-none overflow-hidden"
         placeholder="Poser votre question"
-      />
+        rows="1"
+        @input="adjustTextareaHeight"
+        ref="textarea"
+      ></textarea>
       <button @click="submitMessage" class="absolute inset-y-0 right-0 flex items-center pr-3 text-white">
         <div class="bg-[#FFFFFF] bg-opacity-25 p-2">
           <SendIcon />
@@ -24,19 +26,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import LoopIcon from '../Icons/LoopIcon.vue';
 import SendIcon from '../Icons/SendIncon.vue';
 import UploadIcon from '../Icons/UploadIcon.vue';
 
 const message = ref('');
+const textarea = ref(null);
 
 const emit = defineEmits(['sendMessage', 'toggleFileUploadModal']);
 
-const submitMessage = () => {
-  if (message.value !== '') {
+const submitMessage = (event) => {
+  if (message.value.trim() !== '') {
     emit('sendMessage', message.value);
     message.value = '';
+    resetTextareaHeight();
+    event.preventDefault();
   }
 };
 
@@ -44,6 +49,25 @@ const toggleFileUploadModal = () => {
   console.log('toggleFileUploadModal');
   emit('toggleFileUploadModal');
 };
+
+const adjustTextareaHeight = () => {
+  const el = textarea.value;
+  if (el) {
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }
+};
+
+const resetTextareaHeight = () => {
+  const el = textarea.value;
+  if (el) {
+    el.style.height = 'auto';
+  }
+};
+
+onMounted(() => {
+  adjustTextareaHeight();
+});
 </script>
 
 <style scoped>
