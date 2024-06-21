@@ -43,7 +43,10 @@ import { onMounted, ref } from 'vue';
 import DropDown from '../components/DropDown.vue';
 import Accept from '../components/Icons/Accept.vue';
 import Reject from '../components/Icons/Reject.vue';
+import { useToast } from 'vue-toast-notification';
 import api from '../services/api';
+
+const toast = useToast();
 
 interface Client {
   id: number;
@@ -87,6 +90,12 @@ const convertDate = (date: Date) => {
 
 const rejectRequest = async (id: number) => {
   await api.post(`/access-requests/reject/${id}/`);
+  toast.open({
+    message: 'Demande refusée',
+    type: 'success',
+    duration: 5000,
+    position: 'bottom'
+  });
   const client = clients.value.find((client) => client.id === id);
   if (client) {
     client.status = 'refusé';
@@ -95,6 +104,12 @@ const rejectRequest = async (id: number) => {
 
 const acceptRequest = async (id: number) => {
   await api.post(`/access-requests/approve/${id}/`);
+  toast.open({
+    message: 'Demande acceptée',
+    type: 'success',
+    duration: 5000,
+    position: 'bottom'
+  });
   const client = clients.value.find((client) => client.id === id);
   if (client) {
     client.status = 'accepté';
