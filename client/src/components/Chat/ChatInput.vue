@@ -22,6 +22,9 @@
     <button @click="toggleFileUploadModal" class="ml-4 bg-[#0045B6] h-auto text-white p-3">
       <UploadIcon :size="42" />
     </button>
+    <button @click="clearConv" class="ml-4 h-auto text-white p-3">
+      <ReloadIcon :size="42" />
+    </button>
   </div>
 </template>
 
@@ -30,11 +33,12 @@ import { ref, onMounted } from 'vue';
 import LoopIcon from '../Icons/LoopIcon.vue';
 import SendIcon from '../Icons/SendIncon.vue';
 import UploadIcon from '../Icons/UploadIcon.vue';
+import ReloadIcon from '../Icons/Reloadicon.vue';
 
 const message = ref('');
 const textarea = ref(null);
 
-const emit = defineEmits(['sendMessage', 'toggleFileUploadModal']);
+const emit = defineEmits(['sendMessage', 'toggleFileUploadModal', 'clearConv']);
 
 const submitMessage = (event) => {
   if (message.value.trim() !== '') {
@@ -48,6 +52,10 @@ const submitMessage = (event) => {
 const toggleFileUploadModal = () => {
   console.log('toggleFileUploadModal');
   emit('toggleFileUploadModal');
+};
+
+const clearConv = () => {
+  emit('clearConv');
 };
 
 const adjustTextareaHeight = () => {
