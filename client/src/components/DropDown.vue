@@ -12,7 +12,7 @@
           <span class="pr-2">Me déconnecter</span>
         </div>
         <hr />
-        <div class="px-6 py-2 cursor-pointer font-normal hover:bg-gray-100 flex justify-between items-center text-lg" @click="requestAccess">
+        <div v-if="isAdministrator()" class="px-6 py-2 cursor-pointer font-normal hover:bg-gray-100 flex justify-between items-center text-lg" @click="requestAccess">
           <Access />
           <span>Demande d’accès</span>
         </div>
@@ -27,13 +27,19 @@ import Account from './Icons/AccountIcon.vue';
 import Exit from './Icons/ExitIcon.vue';
 import Access from './Icons/Access.vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '../store/modules/user';
 
 const router = useRouter();
 const isOpen = ref(false);
 const dropdown = ref<HTMLElement | null>(null);
+const userStore = useUserStore();
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
+};
+
+const isAdministrator = () => {
+  return userStore.user?.role === 'admin';
 };
 
 const logout = () => {

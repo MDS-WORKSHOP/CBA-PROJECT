@@ -13,8 +13,8 @@ export interface  AccessRequestForm{
   password: string;
   last_name: string;
   first_name: string;
-  site: Sites | null;
-  profile: Profiles | null;
+  site: Sites | string;
+  profile: Profiles | string;
 }
 
 export enum Sites {
@@ -26,4 +26,14 @@ export enum Sites {
 export enum Profiles {
   BT = 'BT',
   CD = 'CD',
+}
+
+export interface User {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  site: Sites;
+  profile: Profiles;
+  role: string;
 }

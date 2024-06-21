@@ -5,7 +5,7 @@
       <RouterLink to="/"><span>CBA - AIR FRANCE KLM</span></RouterLink>
       <DropDown class="absolute right-24" />
     </header>
-    <div class="flex-grow grid grid-cols-12 p-4">
+    <div class="flex-grow grid h-full grid-cols-12 p-4">
       <div class="col-span-1"></div>
       <div class="col-span-1"></div>
       <div class="col-span-1"></div>
@@ -52,13 +52,16 @@ import ChatInput from '../components/Chat/ChatInput.vue';
 import Modal from '../components/Chat/Modal.vue';
 import DropDown from '../components/DropDown.vue';
 import GeorgeIcon from '../components/Icons/GeorgeIcon.vue';
+import api from '../services/api';
+import { useUserStore } from '../store/modules/user';
 
 const messages = ref<{ sender: string, text: string }[]>([]);
 const isLoading = ref(false);
 const isFileUploadModalVisible = ref(false);
 const chatContainer = ref<HTMLElement | null>(null);
 const messagesContainer = ref<HTMLElement | null>(null);
-import api from '../services/api';
+const userStore = useUserStore();
+
 
 const ask = async (text: string) => {
   try {
@@ -87,8 +90,13 @@ const askQuestion = async (text: string, conversionId: any) => {
   }
 };
 
+const getUser = async () => {
+  await useUserStore().fetchUserData();
+};
+
 const sendMessage = async (text: string) => {
   messages.value.push({ sender: 'user', text });
+  scrollToBottom();
   isLoading.value = true;
   const response = await ask(text);
   if (response) {
@@ -110,6 +118,7 @@ const toggleFileUploadModal = () => {
 };
 
 onMounted(() => {
+  getUser();
   scrollToBottom();
 });
 </script>
