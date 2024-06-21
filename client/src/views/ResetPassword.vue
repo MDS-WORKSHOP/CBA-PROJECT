@@ -1,29 +1,39 @@
 <!-- create a new file in the client/src directory called ResetPassword.vue -->
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import auth from '../services/auth';
 import Button from '../components/Button.vue'
 import CustomInput from '../components/Input.vue'
 import LockIcon from '../components/Icons/LockIcon.vue';
-import EmailIcon from '../components/Icons/EmailIcon.vue';
+import { useToast } from 'vue-toast-notification';
 const password = ref('')
 const confirmPassword = ref('')
 const route = useRoute()
 const router = useRouter()
 const token = route.query.token as string
+const toast = useToast()
 
 
 const submit = async (e: Event) => {
   e.preventDefault()
   if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match')
+    toast.open({
+      message: 'Les mots de passe ne correspondent pas',
+      type: 'error',
+      duration: 5000,
+      position: 'bottom'
+    })
     return
   }
   try {
     await auth.resetPassword(password.value, token)
-    alert('Password reset successfully')
+    toast.open({
+      message: 'Votre mot de passe a été réinitialisé',
+      type: 'success',
+      duration: 5000,
+      position: 'bottom'
+    })
     router.push('/login')
   } catch (error) {
     console.error(error)

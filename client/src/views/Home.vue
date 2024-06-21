@@ -13,6 +13,15 @@
         <div class="flex-grow p-4" ref="chatContainer">
           <div v-if="messages.length">
             <ChatMessage class="my-8" v-for="(message, index) in messages" :key="index" :message="message" />
+            <div v-if="isLoading" class="font-medium flex flex-col justify-center pt-4">
+              <div>
+                <div class="flex items-center mb-2">
+                  <GeorgeIcon :size="31" />
+                  <p class="ml-2 font-bold text-gray-800">George</p>
+                </div>
+                <span class="p-2 rounded-lg text-sm">Je suis en train de réfléchir...</span>
+              </div>
+            </div>
           </div>
           <div v-else class="text-center text-3xl font-medium flex flex-col justify-center items-center">
             <div>
@@ -34,7 +43,7 @@
         <div class="col-span-1"></div>
         <div class="col-span-1"></div>
         <div class="col-span-6">
-          <ChatInput @sendMessage="sendMessage" @toggleFileUploadModal="toggleFileUploadModal" />
+          <ChatInput @sendMessage="sendMessage" @toggleFileUploadModal="toggleFileUploadModal" @clearConv="clearConv" />
         </div>
         <div class="col-span-1"></div>
         <div class="col-span-1"></div>
@@ -54,13 +63,14 @@ import DropDown from '../components/DropDown.vue';
 import GeorgeIcon from '../components/Icons/GeorgeIcon.vue';
 import api from '../services/api';
 import { useUserStore } from '../store/modules/user';
+import { useToast } from 'vue-toast-notification';
 
 const messages = ref<{ sender: string, text: string }[]>([]);
 const isLoading = ref(false);
 const isFileUploadModalVisible = ref(false);
 const chatContainer = ref<HTMLElement | null>(null);
 const messagesContainer = ref<HTMLElement | null>(null);
-const userStore = useUserStore();
+const toast = useToast();
 
 
 const ask = async (text: string) => {
@@ -83,7 +93,6 @@ const askQuestion = async (text: string, conversionId: any) => {
   try {
     const response = await api.post('/ask/', { question: text, conversation_id: conversionId});
     return response.data.ai_response;
-    isLoading.value = false;
   } catch (error) {
     console.error(error);
     return null;
@@ -101,6 +110,7 @@ const sendMessage = async (text: string) => {
   const response = await ask(text);
   if (response) {
     messages.value.push({ sender: 'bot', text: response });
+    isLoading.value = false;
   }
   nextTick(() => {
     scrollToBottom();
@@ -115,6 +125,17 @@ const scrollToBottom = () => {
 
 const toggleFileUploadModal = () => {
   isFileUploadModalVisible.value = !isFileUploadModalVisible.value;
+};
+
+const clearConv = () => {
+  messages.value = [];
+  sessionStorage.removeItem('conversionId');
+  toast.open({
+    message: 'Conversation effacée',
+    type: 'success',
+    duration: 5000,
+    position: 'bottom'
+  });
 };
 
 onMounted(() => {
