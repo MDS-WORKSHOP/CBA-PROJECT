@@ -5,3 +5,6 @@
 body {
   @apply font-norms;
 }
+.v-toast__item {
+  border-radius: 0 !important;
+}

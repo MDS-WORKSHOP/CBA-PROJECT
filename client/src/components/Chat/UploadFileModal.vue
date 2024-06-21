@@ -28,8 +28,10 @@ import { ref } from 'vue';
 import Button from '../Button.vue';
 import api from '../../services/api';
 import Select from '../Select.vue';
+import { useToast } from 'vue-toast-notification';
 
 const emit = defineEmits(['close', 'fileUploaded']);
+const toast = useToast();
 
 const file = ref<File | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -82,6 +84,10 @@ const uploadFile = async () => {
   if (file.value) {
     isLoading.value = true;
     const response = await sendDoc();
+    if (!response) {
+      isLoading.value = false;
+      return;
+    }
     setTimeout(() => {
       const data = {
         pdfFile: file.value,
@@ -97,14 +103,22 @@ const sendDoc = async() => {
   const formData = new FormData();
   formData.append('file', file.value as File);
   formData.append('schemma', data.value.type);
-  console.log(formData);
-  const response = await api.post('/documents/upload/', formData, {
-  headers: {
-    'Content-Type': 'multipart/form-data'
+  try {
+    const response = await api.post('/documents/upload/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+    return {info: response.data};
+  } catch (error) {
+    toast.open({
+      message: 'Erreur lors de l\'envoi du document',
+      type: 'error',
+      duration: 5000,
+      position: 'bottom'
+    });
+    console.error(error);
   }
-});
-  console.log(response.data);
-  return {info: response.data};
 }
 </script>
 

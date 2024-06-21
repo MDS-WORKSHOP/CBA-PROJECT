@@ -5,15 +5,29 @@ import auth from '../services/auth';
 import Button from '../components/Button.vue'
 import CustomInput from '../components/Input.vue'
 import EmailIcon from '../components/Icons/EmailIcon.vue'
+import { useToast } from 'vue-toast-notification';
+
 const email = ref('')
 const router = useRouter()
+const toast = useToast()
 
 const submit = async (e: Event) => {
   e.preventDefault()
   try {
     await auth.requestResetPassword(email.value)
-    alert('Un email vous a été envoyé pour réinitialiser votre mot de passe')
+    toast.open({
+      message: 'Un email a été envoyé',
+      type: 'success',
+      duration: 5000,
+      position: 'bottom'
+    })
   } catch (error) {
+    toast.open({
+      message: 'Erreur lors de la demande',
+      type: 'error',
+      duration: 5000,
+      position: 'bottom'
+    })
     console.error(error)
   }
 }

@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import Button from '../Button.vue';
+import { useToast } from 'vue-toast-notification';
 
 const props = defineProps({
   data: {
@@ -35,6 +36,7 @@ const props = defineProps({
   }
 });
 const emit = defineEmits(['close']);
+const toast = useToast();
 
 const pdfUrl = computed(() => {
   if (props.data.pdfFile) {
@@ -46,6 +48,12 @@ const pdfUrl = computed(() => {
 const formData = ref<{ [key: string]: any }>({ ...props.data.form });
 
 const submitForm = () => {
+  toast.open({
+    message: 'Document envoyé avec succès',
+    type: 'success',
+    duration: 5000,
+    position: 'bottom'
+  });
   emit('close');
 };
 

@@ -35,6 +35,7 @@ import Select from '../components/Select.vue'
 import CustomInput from '../components/Input.vue'
 import LockIcon from '../components/Icons/LockIcon.vue';
 import EmailIcon from '../components/Icons/EmailIcon.vue';
+import { useToast } from 'vue-toast-notification';
 
 const data = ref<AccessRequestForm>({
   email: '',
@@ -49,13 +50,19 @@ const options = ref(Object.values(Sites))
 const optionsProfile = ref(Object.values(Profiles))
 const router = useRouter()
 const errors = ref('')
+const toast = useToast()
 
 const submit = async (e: Event) => {
   e.preventDefault()
   try {
     console.log(data.value)
     await auth.requestAccess(data.value)
-    alert('Votre demande a été envoyée')
+    toast.open({
+      message: 'Votre demande a été envoyée',
+      type: 'success',
+      duration: 5000,
+      position: 'bottom'
+    })
     router.push('/login')
   } catch (error: any) {
     errors.value = error
@@ -68,6 +75,12 @@ const submit = async (e: Event) => {
       profile: '',
     }
     console.error(error)
+    toast.open({
+      message: 'Erreur lors de la demande',
+      type: 'error',
+      duration: 5000,
+      position: 'bottom'
+    })
   }
 }
 
