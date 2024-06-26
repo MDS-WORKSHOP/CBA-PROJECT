@@ -14,6 +14,8 @@ Ce projet a été réalisé pour Air France dans le cadre d'un workshop. L'objec
 
 - Docker
 - Docker Compose
+- key API https://tavily.com/
+- key API OpenAI ou Azure OpenAI
 
 ## Installation
 
@@ -44,20 +46,22 @@ docker-compose up --build
 
 Une fois les conteneurs en cours d'exécution, ouvrez un nouveau terminal et exécutez les migrations de la base de données :
 
+
 ```sh
-docker-compose run server python manage.py migrate
+docker-compose exec server python manage.py makemigrations
+docker-compose exec server python manage.py migrate
 ```
 
 ### Création d'un utilisateur avec une commande personnalisée
 
 Vous pouvez créer un utilisateur en utilisant la commande personnalisée create_user. Par exemple :
 ```sh
-docker-compose run server python manage.py create_custom_user johndoe johndoe@example.com password123 --first_name=John --last_name=Doe --profile=CD --role=admin --site=CDG
+docker-compose exec server python manage.py create_custom_user johndoe johndoe@example.com password123 --first_name=John --last_name=Doe --profile=CD --role=admin --site=CDG
 ```
 
 ## Accès à l'application
 
-L'application sera accessible via http://localhost:8000.
+L'application sera accessible via http://localhost:5173.
 
 
 ## Auteurs
