@@ -12,8 +12,8 @@ Ce projet a été réalisé pour Air France dans le cadre d'un workshop. L'objec
 
 ## Prérequis
 
-- Docker
-- Docker Compose
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 - key API https://tavily.com/
 - key API OpenAI ou Azure OpenAI
 
