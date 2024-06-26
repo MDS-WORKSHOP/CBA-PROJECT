@@ -110,7 +110,7 @@ docker-compose exec server python manage.py migrate
 
 Vous pouvez créer un utilisateur en utilisant la commande personnalisée create_user. Par exemple :
 ```sh
-docker-compose exec server python manage.py create_custom_user johndoe johndoe@example.com password123 --first_name=John --last_name=Doe --profile=CD --role=admin --site=CDG
+docker-compose exec server python manage.py create_user johndoe johndoe@example.com password123 --first_name=John --last_name=Doe --profile=CD --role=admin --site=CDG
 ```
 
 ## Accès à l'application
