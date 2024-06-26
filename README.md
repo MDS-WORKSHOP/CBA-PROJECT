@@ -21,6 +21,27 @@ Ce projet a été réalisé pour Air France dans le cadre d'un workshop. L'objec
 
 L'application est conçue pour fonctionner avec différents modèles de langage (LLM) tels que Mistral, Llama 3, OpenAI, et d'autres. Étant donné que l'environnement de production ne comporte pas de carte graphique (GPU) nécessaire pour la gestion locale des LLM, le choix a été fait d'utiliser des API externes. Cela permet d'intégrer facilement des LLM via OpenAI ou Azure OpenAI. Pour utiliser l'application, une clé API OpenAI ou Azure OpenAI est nécessaire. Cependant, l'architecture de l'application permet de modifier facilement la configuration pour utiliser d'autres APIs, comme celles de Mistral ou Groq.
 
+## Paiement Unique pour OpenAI
+
+Pour répondre à la problématique de ne pas pouvoir prendre d'abonnement, il est possible de configurer un paiement unique sur OpenAI. Cela permet d'avoir accès à l'API sans besoin d'abonnement mensuel. Une fois que le crédit est épuisé, il suffit de recharger le montant souhaité pour continuer à utiliser l'API jusqu'à épuisement du nouveau crédit. Cette flexibilité permet une meilleure gestion des coûts et une utilisation adaptée aux besoins.
+
+## Utilisation d'une IA 100% Locale
+Pour ceux qui souhaitent utiliser une IA 100% locale, il est possible de configurer un serveur avec une ou deux cartes graphiques de dernière génération, comme la GeForce RTX 3090 Founders Edition. Voici les étapes à suivre :
+
+1. **Monter un Serveur** :
+    - Assurez-vous que votre serveur est équipé d'une ou deux cartes graphiques GeForce RTX 3090 Founders Edition par exemple.
+
+2. **Télécharger le Modèle Open Source** :
+    - Téléchargez le modèle Llama 3 depuis Hugging Face https://huggingface.co/ .
+
+3. **Modifier le Code** :
+    - Modifiez le code de l'application pour utiliser `llama.cpp` avec le modèle téléchargé https://python.langchain.com/v0.2/docs/integrations/llms/llamacpp/.
+    - Assurez-vous que le code est configuré pour exécuter le modèle en local.
+
+4. **Exécuter en Local** :
+    - Démarrez l'application en utilisant les ressources GPU pour exécuter le modèle de langage.
+    - Évitez d'utiliser le CPU pour exécuter le modèle, car cela pourrait ne pas fournir suffisamment de puissance et risque d'endommager le matériel à cause de la chaleur produite par les calculs intensifs.
+
 ## Installation
 
 Clonez le dépôt du projet :
